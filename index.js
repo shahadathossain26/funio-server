@@ -17,11 +17,24 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run() {
     try {
-        const categoryCollection = client.db('funio').collection('category')
+        const categoryCollection = client.db('funio').collection('category');
+        const usersCollection = client.db('funio').collection('users');
 
         app.get('/categories', async (req, res) => {
             const query = {};
             const result = await categoryCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.post('/users', async (req, res) => {
+            const user = req.body
+            const userQuery = { email: req.body.email }
+            const storedUser = await usersCollection.findOne(userQuery);
+            if (storedUser) {
+                return
+            }
+            console.log(user);
+            const result = await usersCollection.insertOne(user);
             res.send(result);
         })
     }
