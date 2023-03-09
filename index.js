@@ -19,6 +19,8 @@ async function run() {
     try {
         const categoryCollection = client.db('funio').collection('category');
         const usersCollection = client.db('funio').collection('users');
+        const productsCollection = client.db('funio').collection('products');
+        const ordersCollection = client.db('funio').collection('orders');
 
         app.get('/categories', async (req, res) => {
             const query = {};
@@ -35,6 +37,28 @@ async function run() {
             }
             console.log(user);
             const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.get('/category/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { category_id: id }
+
+            const result = await productsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.post('/orders', async (req, res) => {
+            const order = req.body
+            const query = {
+                productName: order.productName,
+                email: order.email
+            }
+            const storedOrder = await ordersCollection.findOne(query);
+            if (storedOrder) {
+                return
+            }
+            const result = await ordersCollection.insertOne(order);
             res.send(result);
         })
     }
